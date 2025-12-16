@@ -1,5 +1,6 @@
 package dev.ordinal1.ru.Streams;
 
+import dev.ordinal1.ru.Exceptions.UsbRelayOpenException;
 import dev.ordinal1.ru.Tools.UsbTools;
 import dev.ordinal1.ru.DTO.UsbPort;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class UsbStream extends OutputStream {
     @Getter
     private volatile boolean closed = false;
 
-    public UsbStream(UsbPort usbPort) throws IOException {
+    public UsbStream(UsbPort usbPort) throws UsbRelayOpenException {
         short vid = usbPort.getDevice().getUsbDeviceDescriptor().idVendor();
         short pid = usbPort.getDevice().getUsbDeviceDescriptor().idProduct();
         handle = LibUsb.openDeviceWithVidPid(null, vid, pid);
@@ -38,7 +39,7 @@ public class UsbStream extends OutputStream {
         try {
             this.pipedOutputStream.connect(pipedInputStream);
         } catch (IOException e) {
-            throw new IOException("Не удалось соединить потоки", e);
+            throw new UsbRelayOpenException("Не удалось соединить потоки", e);
         }
 
         Thread usbThread = new Thread(createUsbTask());

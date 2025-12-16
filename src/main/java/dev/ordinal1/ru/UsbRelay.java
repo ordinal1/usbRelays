@@ -3,6 +3,7 @@ package dev.ordinal1.ru;
 import dev.ordinal1.ru.DTO.UsbPort;
 import dev.ordinal1.ru.Enums.Operations;
 import dev.ordinal1.ru.Enums.RelayType;
+import dev.ordinal1.ru.Exceptions.UsbRelayNotFound;
 import dev.ordinal1.ru.Streams.UsbStream;
 import dev.ordinal1.ru.Tools.UsbTools;
 import lombok.Setter;
@@ -57,7 +58,7 @@ public class UsbRelay implements AutoCloseable{
      */
     public boolean reconnect() throws IOException {
         UsbPort port = find();
-        if (port == null) throw new IOException("Device not found!");
+        if (port == null) throw new UsbRelayNotFound("Device not found!");
 
         stream = new UsbStream(port);
         return true;
