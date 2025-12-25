@@ -1,8 +1,6 @@
 package dev.ordinal1.ru.Tools;
 
 import dev.ordinal1.ru.DTO.UsbPort;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.usb4java.BufferUtils;
 import org.usb4java.DeviceHandle;
 import org.usb4java.LibUsb;
@@ -13,17 +11,18 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
-@Slf4j
 public class UsbTools {
-    @Getter
-    private static UsbHub rootHub;
+    private static final UsbHub rootHub;
 
+    public static UsbHub getRootHub() {
+        return rootHub;
+    }
 
     static {
         try {
             rootHub = UsbHostManager.getUsbServices().getRootUsbHub();
         } catch (UsbException e) {
-            log.error("Ошибка получения USB соединения");
+            throw new RuntimeException(e);
         }
     }
 
@@ -51,20 +50,18 @@ public class UsbTools {
         UsbPort usbPort = new UsbPort();
         usbPort.setDevice(device);
         usbPort.setInterfaceNumber((byte) 0x00);
-        UsbEndpoint in = findEndpoint(device, UsbConst.ENDPOINT_DIRECTION_IN);
-        UsbEndpoint out = findEndpoint(device, UsbConst.ENDPOINT_DIRECTION_OUT);
-        if (in == null || out == null) return null;
-        usbPort.setEndpointAddressIn(in);
+        UsbEndpoint out = findEndpoint(device);
+        if (out == null) return null;
         usbPort.setEndpointAddressOut(out);
 
         return usbPort;
     }
 
-    private static UsbEndpoint findEndpoint(UsbDevice device, byte direction) {
+    private static UsbEndpoint findEndpoint(UsbDevice device) {
         for (UsbConfiguration configuration : (List<UsbConfiguration>) device.getUsbConfigurations()) {
             for (UsbInterface iface : (List<UsbInterface>) configuration.getUsbInterfaces()) {
                 for (UsbEndpoint endpoint : (List<UsbEndpoint>) iface.getUsbEndpoints()) {
-                    if (endpoint.getDirection() == direction) {
+                    if (endpoint.getDirection() == UsbConst.ENDPOINT_DIRECTION_OUT) {
                         return endpoint;
                     }
                 }
@@ -85,7 +82,7 @@ public class UsbTools {
         int result = LibUsb.bulkTransfer(handle, endpointOut, data,
                 transferred, 2000);
         if (result != LibUsb.SUCCESS) {
-            log.error("Ошибка отправки данных устройству", new LibUsbException("Unable to send data", result));
+            throw new LibUsbException("Unable to send data", result);
         }
 
         return transferred.get();

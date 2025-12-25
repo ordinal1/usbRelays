@@ -1,17 +1,15 @@
 package dev.ordinal1.ru;
 
 import dev.ordinal1.ru.DTO.UsbPort;
-import dev.ordinal1.ru.Enums.Operations;
+import dev.ordinal1.ru.Enums.RelayOperation;
 import dev.ordinal1.ru.Enums.RelayType;
 import dev.ordinal1.ru.Exceptions.UsbRelayNotFound;
 import dev.ordinal1.ru.Streams.UsbStream;
 import dev.ordinal1.ru.Tools.UsbTools;
-import lombok.Setter;
 
 import javax.usb.UsbDevice;
 import java.io.IOException;
 
-@Setter
 public class UsbRelay implements AutoCloseable{
     private final short pid;
     private final short vid;
@@ -22,14 +20,16 @@ public class UsbRelay implements AutoCloseable{
         pid = type.getIdentifier()[0];
         vid = type.getIdentifier()[1];
 
-        reconnect();
+        if (!reconnect())
+            throw new UsbRelayNotFound("Device not found");
     }
 
     public UsbRelay(short pid, short vid) throws IOException {
         this.pid = pid;
         this.vid = vid;
 
-        reconnect();
+        if (!reconnect())
+            throw new UsbRelayNotFound("Device not found");
     }
 
     public static boolean isConnected(short pid, short vid) {
@@ -68,8 +68,8 @@ public class UsbRelay implements AutoCloseable{
      * Performs a specified operation
      * @param operation close or Open Operation
      */
-    public void sendCommand(Operations operation) throws IOException, InterruptedException {
-        if (!stream.isClosed()) {
+    public void sendCommand(RelayOperation operation) throws IOException, InterruptedException {
+        if (stream.isOpened()) {
             stream.write(operation.getCommand());
             Thread.sleep(1200);
             return;
@@ -83,10 +83,10 @@ public class UsbRelay implements AutoCloseable{
      * @param operation operation with back (open)
      * @param ms latency in milliseconds
      */
-    public void sendCommand(Operations operation, long ms) throws IOException, InterruptedException {
+    public void sendCommand(RelayOperation operation, long ms) throws IOException, InterruptedException {
         if (operation.getBack() == null) return;
 
-        if (!stream.isClosed()) {
+        if (stream.isOpened()) {
             stream.write(operation.getCommand());
             Thread.sleep(ms);
             stream.write(operation.getBack().getCommand());
@@ -99,7 +99,7 @@ public class UsbRelay implements AutoCloseable{
 
     @Override
     public void close() throws Exception {
-        if (stream != null && !stream.isClosed()) {
+        if (stream != null && stream.isOpened()) {
             stream.close();
         }
     }

@@ -1,14 +1,34 @@
 package dev.ordinal1.ru.DTO;
 
-import lombok.Data;
-
 import javax.usb.UsbDevice;
 import javax.usb.UsbEndpoint;
 
-@Data
 public class UsbPort {
     private UsbDevice device;
     private byte interfaceNumber;
     private UsbEndpoint endpointAddressOut;
-    private UsbEndpoint endpointAddressIn;
+
+    public void setDevice(UsbDevice device) {
+        this.device = device;
+    }
+
+    public void setInterfaceNumber(byte interfaceNumber) {
+        this.interfaceNumber = interfaceNumber;
+    }
+
+    public void setEndpointAddressOut(UsbEndpoint endpointAddressOut) {
+        this.endpointAddressOut = endpointAddressOut;
+    }
+
+    public UsbDevice getDevice() {
+        return device;
+    }
+
+    public byte getInterfaceNumber() {
+        return interfaceNumber;
+    }
+
+    public UsbEndpoint getEndpointAddressOut() {
+        return endpointAddressOut;
+    }
 }

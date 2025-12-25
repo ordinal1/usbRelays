@@ -1,9 +1,6 @@
 package dev.ordinal1.ru.Enums;
 
-import lombok.Getter;
-
-@Getter
-public enum Operations {
+public enum RelayOperation {
     CLOSE_1(new byte[]{(byte) 0xA0, 0x01, 0x00, (byte) 0xA1}, null),
     OPEN_1(new byte[]{(byte) 0xA0, 0x01, 0x01, (byte) 0xA2}, CLOSE_1),
 
@@ -17,10 +14,18 @@ public enum Operations {
     OPEN_4(new byte[]{(byte) 0xA0, 0x04, 0x01, (byte) 0xA5}, CLOSE_4);
 
     private final byte[] command;
-    private final Operations back;
+    private final RelayOperation back;
 
-    Operations(byte[] command, Operations back) {
+    RelayOperation(byte[] command, RelayOperation back) {
         this.command = command;
         this.back = back;
+    }
+
+    public byte[] getCommand() {
+        return command;
+    }
+
+    public RelayOperation getBack() {
+        return back;
     }
 }
