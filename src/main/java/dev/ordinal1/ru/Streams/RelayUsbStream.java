@@ -1,9 +1,9 @@
 package dev.ordinal1.ru.Streams;
 
-import dev.ordinal1.ru.DTO.UsbPort;
+import dev.ordinal1.ru.DTO.RelayUsbPort;
 import dev.ordinal1.ru.Exceptions.UsbCloseException;
 import dev.ordinal1.ru.Exceptions.UsbRelayOpenException;
-import dev.ordinal1.ru.Tools.UsbTools;
+import dev.ordinal1.ru.Tools.RelayUsbTools;
 import org.usb4java.DeviceHandle;
 import org.usb4java.LibUsb;
 import org.usb4java.LibUsbException;
@@ -15,21 +15,21 @@ import java.io.PipedOutputStream;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class UsbStream extends OutputStream {
+public class RelayUsbStream extends OutputStream {
     private static final int BUFFER_SIZE = 4096;
 
     private final DeviceHandle handle;
     private final PipedInputStream pipedInputStream;
     private final PipedOutputStream pipedOutputStream;
-    private final UsbPort usbPort;
+    private final RelayUsbPort relayUsbPort;
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private final Thread usbThread;
 
-    public UsbStream(UsbPort usbPort) throws UsbRelayOpenException {
-        this.usbPort = usbPort;
+    public RelayUsbStream(RelayUsbPort relayUsbPort) throws UsbRelayOpenException {
+        this.relayUsbPort = relayUsbPort;
 
         // Opening USB device
-        this.handle = openUsbDevice(usbPort);
+        this.handle = openUsbDevice(relayUsbPort);
 
         // Initializing streams
         this.pipedOutputStream = new PipedOutputStream();
@@ -50,9 +50,9 @@ public class UsbStream extends OutputStream {
     /**
      * Opens USB device by VID/PID
      */
-    private DeviceHandle openUsbDevice(UsbPort usbPort) throws UsbRelayOpenException {
-        short vid = usbPort.getDevice().getUsbDeviceDescriptor().idVendor();
-        short pid = usbPort.getDevice().getUsbDeviceDescriptor().idProduct();
+    private DeviceHandle openUsbDevice(RelayUsbPort relayUsbPort) throws UsbRelayOpenException {
+        short vid = relayUsbPort.getDevice().getUsbDeviceDescriptor().idVendor();
+        short pid = relayUsbPort.getDevice().getUsbDeviceDescriptor().idProduct();
 
         DeviceHandle handle = LibUsb.openDeviceWithVidPid(null, vid, pid);
         if (handle == null) {
@@ -94,7 +94,7 @@ public class UsbStream extends OutputStream {
 
         LibUsb.setAutoDetachKernelDriver(handle, true);
 
-        result = LibUsb.claimInterface(handle, usbPort.getInterfaceNumber());
+        result = LibUsb.claimInterface(handle, relayUsbPort.getInterfaceNumber());
         if (result != LibUsb.SUCCESS) {
             throw new LibUsbException("Failed to claim interface", result);
         }
@@ -104,10 +104,10 @@ public class UsbStream extends OutputStream {
      * Main USB data processing loop
      */
     private void processUsbData() throws IOException {
-        byte endpointOut = usbPort.getEndpointAddressOut()
+        byte endpointOut = relayUsbPort.getEndpointAddressOut()
                 .getUsbEndpointDescriptor()
                 .bEndpointAddress();
-        int packetSize = usbPort.getEndpointAddressOut()
+        int packetSize = relayUsbPort.getEndpointAddressOut()
                 .getUsbEndpointDescriptor()
                 .wMaxPacketSize();
 
@@ -126,7 +126,7 @@ public class UsbStream extends OutputStream {
         int offset = 0;
         while (offset < bytesRead) {
             byte[] chunk = Arrays.copyOfRange(buffer, offset, bytesRead);
-            int sent = UsbTools.write(handle, endpointOut, chunk);
+            int sent = RelayUsbTools.write(handle, endpointOut, chunk);
             offset += sent;
         }
     }
@@ -144,7 +144,7 @@ public class UsbStream extends OutputStream {
      */
     private void cleanupUsb() {
         try {
-            LibUsb.releaseInterface(handle, usbPort.getInterfaceNumber());
+            LibUsb.releaseInterface(handle, relayUsbPort.getInterfaceNumber());
         } catch (Exception e) {
             System.err.println("Error while releasing interface: " + e.getMessage());
         }

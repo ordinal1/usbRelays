@@ -1,11 +1,11 @@
 package dev.ordinal1.ru;
 
-import dev.ordinal1.ru.DTO.UsbPort;
+import dev.ordinal1.ru.DTO.RelayUsbPort;
 import dev.ordinal1.ru.Enums.RelayOperation;
 import dev.ordinal1.ru.Enums.RelayType;
 import dev.ordinal1.ru.Exceptions.UsbRelayNotFound;
-import dev.ordinal1.ru.Streams.UsbStream;
-import dev.ordinal1.ru.Tools.UsbTools;
+import dev.ordinal1.ru.Streams.RelayUsbStream;
+import dev.ordinal1.ru.Tools.RelayUsbTools;
 
 import javax.usb.UsbDevice;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class UsbRelay implements AutoCloseable{
     private final short pid;
     private final short vid;
 
-    private UsbStream stream;
+    private RelayUsbStream stream;
 
     public UsbRelay(RelayType type) throws IOException {
         pid = type.getIdentifier()[0];
@@ -42,13 +42,13 @@ public class UsbRelay implements AutoCloseable{
         return find(pid, vid) != null;
     }
 
-    public static UsbPort find(short pid, short vid) {
-        UsbDevice targetDevice = UsbTools.findDeviceRecursively(UsbTools.getRootHub(), vid, pid);
+    public static RelayUsbPort find(short pid, short vid) {
+        UsbDevice targetDevice = RelayUsbTools.findDeviceRecursively(RelayUsbTools.getRootHub(), vid, pid);
         if (targetDevice == null) return null;
-        return UsbTools.configureUsbPort(targetDevice);
+        return RelayUsbTools.configureUsbPort(targetDevice);
     }
 
-    public UsbPort find() {
+    public RelayUsbPort find() {
         return find(pid, vid);
     }
 
@@ -57,10 +57,10 @@ public class UsbRelay implements AutoCloseable{
      * @return connection result
      */
     public boolean reconnect() throws IOException {
-        UsbPort port = find();
+        RelayUsbPort port = find();
         if (port == null) throw new UsbRelayNotFound("Device not found!");
 
-        stream = new UsbStream(port);
+        stream = new RelayUsbStream(port);
         return true;
     }
 

@@ -3,7 +3,7 @@ package dev.ordinal1.ru.DTO;
 import javax.usb.UsbDevice;
 import javax.usb.UsbEndpoint;
 
-public class UsbPort {
+public class RelayUsbPort {
     private UsbDevice device;
     private byte interfaceNumber;
     private UsbEndpoint endpointAddressOut;

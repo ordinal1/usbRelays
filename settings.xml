@@ -6,7 +6,7 @@
                 <httpHeaders>
                     <property>
                         <name>Authorization</name>
-                        <value>token 519e1128bd9130f21e4e8739f81c5b5a876b1296</value>
+                        <value>token 7ac947440f7c0b240d5b5c0c1e2c214b6f4be42b</value>
                     </property>
                 </httpHeaders>
             </configuration>

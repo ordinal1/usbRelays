@@ -1,6 +1,6 @@
 package dev.ordinal1.ru.Tools;
 
-import dev.ordinal1.ru.DTO.UsbPort;
+import dev.ordinal1.ru.DTO.RelayUsbPort;
 import org.usb4java.BufferUtils;
 import org.usb4java.DeviceHandle;
 import org.usb4java.LibUsb;
@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
-public class UsbTools {
+public class RelayUsbTools {
     private static final UsbHub rootHub;
 
     public static UsbHub getRootHub() {
@@ -46,15 +46,15 @@ public class UsbTools {
         return null;
     }
 
-    public static UsbPort configureUsbPort(UsbDevice device) {
-        UsbPort usbPort = new UsbPort();
-        usbPort.setDevice(device);
-        usbPort.setInterfaceNumber((byte) 0x00);
+    public static RelayUsbPort configureUsbPort(UsbDevice device) {
+        RelayUsbPort relayUsbPort = new RelayUsbPort();
+        relayUsbPort.setDevice(device);
+        relayUsbPort.setInterfaceNumber((byte) 0x00);
         UsbEndpoint out = findEndpoint(device);
         if (out == null) return null;
-        usbPort.setEndpointAddressOut(out);
+        relayUsbPort.setEndpointAddressOut(out);
 
-        return usbPort;
+        return relayUsbPort;
     }
 
     private static UsbEndpoint findEndpoint(UsbDevice device) {
