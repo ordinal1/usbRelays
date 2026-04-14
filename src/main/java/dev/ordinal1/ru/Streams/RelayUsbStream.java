@@ -51,8 +51,8 @@ public class RelayUsbStream extends OutputStream {
      * Opens USB device by VID/PID
      */
     private DeviceHandle openUsbDevice(RelayUsbPort relayUsbPort) throws UsbRelayOpenException {
-        short vid = relayUsbPort.getDevice().getUsbDeviceDescriptor().idVendor();
-        short pid = relayUsbPort.getDevice().getUsbDeviceDescriptor().idProduct();
+        short vid = relayUsbPort.device().getUsbDeviceDescriptor().idVendor();
+        short pid = relayUsbPort.device().getUsbDeviceDescriptor().idProduct();
 
         DeviceHandle handle = LibUsb.openDeviceWithVidPid(null, vid, pid);
         if (handle == null) {
@@ -94,7 +94,7 @@ public class RelayUsbStream extends OutputStream {
 
         LibUsb.setAutoDetachKernelDriver(handle, true);
 
-        result = LibUsb.claimInterface(handle, relayUsbPort.getInterfaceNumber());
+        result = LibUsb.claimInterface(handle, relayUsbPort.interfaceNumber());
         if (result != LibUsb.SUCCESS) {
             throw new LibUsbException("Failed to claim interface", result);
         }
@@ -104,10 +104,10 @@ public class RelayUsbStream extends OutputStream {
      * Main USB data processing loop
      */
     private void processUsbData() throws IOException {
-        byte endpointOut = relayUsbPort.getEndpointAddressOut()
+        byte endpointOut = relayUsbPort.endpointAddressOut()
                 .getUsbEndpointDescriptor()
                 .bEndpointAddress();
-        int packetSize = relayUsbPort.getEndpointAddressOut()
+        int packetSize = relayUsbPort.endpointAddressOut()
                 .getUsbEndpointDescriptor()
                 .wMaxPacketSize();
 
@@ -144,7 +144,7 @@ public class RelayUsbStream extends OutputStream {
      */
     private void cleanupUsb() {
         try {
-            LibUsb.releaseInterface(handle, relayUsbPort.getInterfaceNumber());
+            LibUsb.releaseInterface(handle, relayUsbPort.interfaceNumber());
         } catch (Exception e) {
             System.err.println("Error while releasing interface: " + e.getMessage());
         }

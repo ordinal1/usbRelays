@@ -10,7 +10,7 @@ import dev.ordinal1.ru.Tools.RelayUsbTools;
 import javax.usb.UsbDevice;
 import java.io.IOException;
 
-public class UsbRelay implements AutoCloseable{
+public class UsbRelay implements AutoCloseable {
     private final short pid;
     private final short vid;
 

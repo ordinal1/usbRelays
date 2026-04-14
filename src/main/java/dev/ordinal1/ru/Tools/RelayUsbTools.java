@@ -47,14 +47,9 @@ public class RelayUsbTools {
     }
 
     public static RelayUsbPort configureUsbPort(UsbDevice device) {
-        RelayUsbPort relayUsbPort = new RelayUsbPort();
-        relayUsbPort.setDevice(device);
-        relayUsbPort.setInterfaceNumber((byte) 0x00);
         UsbEndpoint out = findEndpoint(device);
         if (out == null) return null;
-        relayUsbPort.setEndpointAddressOut(out);
-
-        return relayUsbPort;
+        return new RelayUsbPort(device, (byte) 0x00, out);
     }
 
     private static UsbEndpoint findEndpoint(UsbDevice device) {
