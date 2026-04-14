@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.ordinal1.ru</groupId>
-    <artifactId>usbRelays</artifactId>
+    <artifactId>usbrelays</artifactId>
     <version>1.4</version>
     <packaging>jar</packaging>
 
