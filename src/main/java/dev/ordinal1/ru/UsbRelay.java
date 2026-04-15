@@ -4,13 +4,14 @@ import dev.ordinal1.ru.DTO.RelayUsbPort;
 import dev.ordinal1.ru.Enums.RelayOperation;
 import dev.ordinal1.ru.Enums.RelayType;
 import dev.ordinal1.ru.Exceptions.UsbRelayNotFound;
+import dev.ordinal1.ru.Interfaces.RelayInterface;
 import dev.ordinal1.ru.Streams.RelayUsbStream;
 import dev.ordinal1.ru.Tools.RelayUsbTools;
 
 import javax.usb.UsbDevice;
 import java.io.IOException;
 
-public class UsbRelay implements AutoCloseable {
+public class UsbRelay implements RelayInterface {
     private final short pid;
     private final short vid;
 
@@ -32,11 +33,13 @@ public class UsbRelay implements AutoCloseable {
             throw new UsbRelayNotFound("Device not found");
     }
 
-    public static boolean isConnected(short pid, short vid) {
+    @Override
+    public boolean isConnected(short pid, short vid) {
         return find(pid, vid) != null;
     }
 
-    public static boolean isConnected(RelayType type) {
+    @Override
+    public boolean isConnected(RelayType type) {
         short pid = type.getIdentifier()[0];
         short vid = type.getIdentifier()[1];
         return find(pid, vid) != null;

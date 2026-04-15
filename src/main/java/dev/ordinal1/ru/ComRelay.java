@@ -1,13 +1,17 @@
 package dev.ordinal1.ru;
 
 import com.fazecast.jSerialComm.SerialPort;
+import dev.ordinal1.ru.DTO.RelayUsbPort;
 import dev.ordinal1.ru.Enums.RelayOperation;
 import dev.ordinal1.ru.Enums.RelayType;
 import dev.ordinal1.ru.Exceptions.ComRelayNotOpen;
+import dev.ordinal1.ru.Interfaces.RelayInterface;
+import dev.ordinal1.ru.Tools.RelayUsbTools;
 
+import javax.usb.UsbDevice;
 import java.io.IOException;
 
-public class ComRelay implements AutoCloseable{
+public class ComRelay implements RelayInterface {
     private final SerialPort serialPort;
 
     public ComRelay(String portName) {
@@ -17,12 +21,14 @@ public class ComRelay implements AutoCloseable{
             throw new ComRelayNotOpen("The device cannot be opened");
     }
 
+
     public boolean isConnected(RelayType type) {
-        return UsbRelay.isConnected(type);
+        return find(type.getIdentifier()[0], type.getIdentifier()[1]) != null;
     }
 
-    public static boolean isConnected(short pid, short vid) {
-        return UsbRelay.isConnected(pid, vid);
+    @Override
+    public boolean isConnected(short pid, short vid) {
+        return find(pid, vid) != null;
     }
 
     /**
@@ -56,6 +62,12 @@ public class ComRelay implements AutoCloseable{
         }
 
         throw new IOException("Serial port is closed!");
+    }
+
+    public static RelayUsbPort find(short pid, short vid) {
+        UsbDevice targetDevice = RelayUsbTools.findDeviceRecursively(RelayUsbTools.getRootHub(), vid, pid);
+        if (targetDevice == null) return null;
+        return RelayUsbTools.configureUsbPort(targetDevice);
     }
 
     @Override
