@@ -6,7 +6,7 @@
 
     <groupId>dev.ordinal1.ru</groupId>
     <artifactId>usbrelays</artifactId>
-    <version>1.4</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <properties>
