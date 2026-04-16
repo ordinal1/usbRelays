@@ -1,18 +1,19 @@
 package dev.ordinal1.ru.Enums;
 
+import dev.ordinal1.ru.DTO.RelayDevice;
+
 public enum RelayType {
-    LC_US(new byte[]{(byte) 0x2007, (byte) 0x5131}),
-    LC_US2(new byte[]{(byte) 0x1A86 , (byte) 0x7523}),
-    CUSTOM(new byte[2]);
+    LC_US(new RelayDevice((short) 0x5131, (short) 0x2007)),
+    LC_US2(new RelayDevice((short) 0x7523, (short) 0x1A86));
 
 
-    private final byte[] identifier;
+    private final RelayDevice device;
 
-    RelayType(byte[] identifier) {
-        this.identifier = identifier;
+    RelayType(RelayDevice device) {
+        this.device = device;
     }
 
-    public byte[] getIdentifier() {
-        return identifier;
+    public RelayDevice device() {
+        return device;
     }
 }

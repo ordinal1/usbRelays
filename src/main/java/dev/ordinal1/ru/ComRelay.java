@@ -1,14 +1,13 @@
 package dev.ordinal1.ru;
 
 import com.fazecast.jSerialComm.SerialPort;
+import dev.ordinal1.ru.DTO.RelayDevice;
 import dev.ordinal1.ru.DTO.RelayUsbPort;
 import dev.ordinal1.ru.Enums.RelayOperation;
 import dev.ordinal1.ru.Enums.RelayType;
-import dev.ordinal1.ru.Exceptions.ComRelayNotOpen;
+import dev.ordinal1.ru.Exceptions.ComRelayException;
 import dev.ordinal1.ru.Interfaces.RelayInterface;
-import dev.ordinal1.ru.Tools.RelayUsbTools;
 
-import javax.usb.UsbDevice;
 import java.io.IOException;
 
 public class ComRelay implements RelayInterface {
@@ -18,17 +17,26 @@ public class ComRelay implements RelayInterface {
         this.serialPort = SerialPort.getCommPort(portName);
 
         if (!serialPort.openPort())
-            throw new ComRelayNotOpen("The device cannot be opened");
+            throw new ComRelayException("The device cannot be opened");
     }
 
 
     public boolean isConnected(RelayType type) {
-        return find(type.getIdentifier()[0], type.getIdentifier()[1]) != null;
+        return find(type.device()) != null;
     }
 
     @Override
-    public boolean isConnected(short pid, short vid) {
-        return find(pid, vid) != null;
+    public boolean isConnected(RelayDevice relayDevice) {
+        return find(relayDevice) != null;
+    }
+
+    @Override
+    public boolean notReconnected() {
+        if (serialPort != null && serialPort.isOpen()) {
+            serialPort.closePort();
+        }
+
+        return serialPort == null || !serialPort.openPort();
     }
 
     /**
@@ -64,10 +72,8 @@ public class ComRelay implements RelayInterface {
         throw new IOException("Serial port is closed!");
     }
 
-    public static RelayUsbPort find(short pid, short vid) {
-        UsbDevice targetDevice = RelayUsbTools.findDeviceRecursively(RelayUsbTools.getRootHub(), vid, pid);
-        if (targetDevice == null) return null;
-        return RelayUsbTools.configureUsbPort(targetDevice);
+    public RelayUsbPort find(RelayDevice relayDevice) {
+        return UsbRelay.find(relayDevice);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package dev.ordinal1.ru.Tools;
 
+import dev.ordinal1.ru.DTO.RelayDevice;
 import dev.ordinal1.ru.DTO.RelayUsbPort;
 import org.usb4java.BufferUtils;
 import org.usb4java.DeviceHandle;
@@ -10,6 +11,7 @@ import javax.usb.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
+import java.util.Objects;
 
 public class RelayUsbTools {
     private static final UsbHub rootHub;
@@ -26,18 +28,18 @@ public class RelayUsbTools {
         }
     }
 
-    public static UsbDevice findDeviceRecursively(UsbHub hub, short vid, short pid) {
+    public static UsbDevice findDeviceRecursively(UsbHub hub, RelayDevice relayDevice) {
         for (Object deviceOrHub : hub.getAttachedUsbDevices()) {
             if (deviceOrHub instanceof UsbDevice device) {
                 UsbDeviceDescriptor desc = device.getUsbDeviceDescriptor();
 
-                if (desc.idVendor() == vid && desc.idProduct() == pid) {
+                if (Objects.equals(desc.idVendor(), relayDevice.vid()) && Objects.equals(desc.idProduct(), relayDevice.pid())) {
                     return device;
                 }
             }
 
             if (deviceOrHub instanceof UsbHub subHub) {
-                UsbDevice result = findDeviceRecursively(subHub, vid, pid); // Рекурсивный вызов
+                UsbDevice result = findDeviceRecursively(subHub, relayDevice); // Рекурсивный вызов
                 if (result != null) {
                     return result;
                 }

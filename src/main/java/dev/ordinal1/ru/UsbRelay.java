@@ -1,5 +1,6 @@
 package dev.ordinal1.ru;
 
+import dev.ordinal1.ru.DTO.RelayDevice;
 import dev.ordinal1.ru.DTO.RelayUsbPort;
 import dev.ordinal1.ru.Enums.RelayOperation;
 import dev.ordinal1.ru.Enums.RelayType;
@@ -12,59 +13,54 @@ import javax.usb.UsbDevice;
 import java.io.IOException;
 
 public class UsbRelay implements RelayInterface {
-    private final short pid;
-    private final short vid;
+    private final RelayDevice relayDevice;
 
     private RelayUsbStream stream;
 
     public UsbRelay(RelayType type) throws IOException {
-        pid = type.getIdentifier()[0];
-        vid = type.getIdentifier()[1];
+        relayDevice = type.device();
 
-        if (!reconnect())
+        if (notReconnected())
             throw new UsbRelayNotFound("Device not found");
     }
 
-    public UsbRelay(short pid, short vid) throws IOException {
-        this.pid = pid;
-        this.vid = vid;
+    public UsbRelay(RelayDevice relayDevice) throws IOException {
+        this.relayDevice = relayDevice;
 
-        if (!reconnect())
+        if (notReconnected())
             throw new UsbRelayNotFound("Device not found");
     }
 
-    @Override
-    public boolean isConnected(short pid, short vid) {
-        return find(pid, vid) != null;
-    }
-
-    @Override
-    public boolean isConnected(RelayType type) {
-        short pid = type.getIdentifier()[0];
-        short vid = type.getIdentifier()[1];
-        return find(pid, vid) != null;
-    }
-
-    public static RelayUsbPort find(short pid, short vid) {
-        UsbDevice targetDevice = RelayUsbTools.findDeviceRecursively(RelayUsbTools.getRootHub(), vid, pid);
+    public static RelayUsbPort find(RelayDevice relayDevice) {
+        UsbDevice targetDevice = RelayUsbTools.findDeviceRecursively(RelayUsbTools.getRootHub(), relayDevice);
         if (targetDevice == null) return null;
         return RelayUsbTools.configureUsbPort(targetDevice);
     }
 
+    @Override
+    public boolean isConnected(RelayDevice relayDevice) {
+        return find(relayDevice) != null;
+    }
+
+    @Override
+    public boolean isConnected(RelayType type) {
+        return find(type.device()) != null;
+    }
+
     public RelayUsbPort find() {
-        return find(pid, vid);
+        return find(relayDevice);
     }
 
     /**
      * Attempts to connect/reconnect to a device
      * @return connection result
      */
-    public boolean reconnect() throws IOException {
+    public boolean notReconnected() throws IOException {
         RelayUsbPort port = find();
         if (port == null) throw new UsbRelayNotFound("Device not found!");
 
         stream = new RelayUsbStream(port);
-        return true;
+        return false;
     }
 
     /**
