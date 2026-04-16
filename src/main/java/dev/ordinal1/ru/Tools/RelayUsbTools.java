@@ -2,6 +2,7 @@ package dev.ordinal1.ru.Tools;
 
 import dev.ordinal1.ru.DTO.RelayDevice;
 import dev.ordinal1.ru.DTO.RelayUsbPort;
+import dev.ordinal1.ru.Enums.RelayType;
 import org.usb4java.BufferUtils;
 import org.usb4java.DeviceHandle;
 import org.usb4java.LibUsb;
@@ -26,6 +27,12 @@ public class RelayUsbTools {
         } catch (UsbException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static boolean isConnected(RelayDevice relayDevice) {
+        UsbDevice targetDevice = RelayUsbTools.findDeviceRecursively(RelayUsbTools.getRootHub(), relayDevice);
+        if (targetDevice == null) return false;
+        return RelayUsbTools.configureUsbPort(targetDevice) != null;
     }
 
     public static UsbDevice findDeviceRecursively(UsbHub hub, RelayDevice relayDevice) {

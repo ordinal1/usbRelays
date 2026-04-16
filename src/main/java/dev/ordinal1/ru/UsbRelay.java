@@ -31,7 +31,7 @@ public class UsbRelay implements RelayInterface {
             throw new UsbRelayNotFound("Device not found");
     }
 
-    public static RelayUsbPort find(RelayDevice relayDevice) {
+    public RelayUsbPort find(RelayDevice relayDevice) {
         UsbDevice targetDevice = RelayUsbTools.findDeviceRecursively(RelayUsbTools.getRootHub(), relayDevice);
         if (targetDevice == null) return null;
         return RelayUsbTools.configureUsbPort(targetDevice);
@@ -39,12 +39,12 @@ public class UsbRelay implements RelayInterface {
 
     @Override
     public boolean isConnected(RelayDevice relayDevice) {
-        return find(relayDevice) != null;
+        return RelayUsbTools.isConnected(relayDevice);
     }
 
     @Override
     public boolean isConnected(RelayType type) {
-        return find(type.device()) != null;
+        return RelayUsbTools.isConnected(type.device());
     }
 
     public RelayUsbPort find() {

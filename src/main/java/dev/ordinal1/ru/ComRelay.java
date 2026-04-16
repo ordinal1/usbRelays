@@ -2,11 +2,11 @@ package dev.ordinal1.ru;
 
 import com.fazecast.jSerialComm.SerialPort;
 import dev.ordinal1.ru.DTO.RelayDevice;
-import dev.ordinal1.ru.DTO.RelayUsbPort;
 import dev.ordinal1.ru.Enums.RelayOperation;
 import dev.ordinal1.ru.Enums.RelayType;
 import dev.ordinal1.ru.Exceptions.ComRelayException;
 import dev.ordinal1.ru.Interfaces.RelayInterface;
+import dev.ordinal1.ru.Tools.RelayUsbTools;
 
 import java.io.IOException;
 
@@ -22,12 +22,12 @@ public class ComRelay implements RelayInterface {
 
 
     public boolean isConnected(RelayType type) {
-        return find(type.device()) != null;
+        return RelayUsbTools.isConnected(type.device());
     }
 
     @Override
     public boolean isConnected(RelayDevice relayDevice) {
-        return find(relayDevice) != null;
+        return RelayUsbTools.isConnected(relayDevice);
     }
 
     @Override
@@ -70,10 +70,6 @@ public class ComRelay implements RelayInterface {
         }
 
         throw new IOException("Serial port is closed!");
-    }
-
-    public RelayUsbPort find(RelayDevice relayDevice) {
-        return UsbRelay.find(relayDevice);
     }
 
     @Override
